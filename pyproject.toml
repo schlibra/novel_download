@@ -1,0 +1,12 @@
+[project]
+name = "novel-download"
+version = "0.1.0"
+requires-python = ">=3.9"
+dependencies = [
+    "fake-useragent>=2.2.0",
+    "html2text>=2025.4.15",
+    "lxml>=6.0.2",
+    "parsel>=1.10.0",
+    "pyyaml>=6.0.3",
+    "requests-toolbelt>=1.0.0",
+]
