@@ -2,7 +2,7 @@ from core import Core
 
 
 def main():
-    Core().load_books().get_books()
+    Core().run()
 
 
 if __name__ == '__main__':

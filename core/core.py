@@ -1,62 +1,70 @@
 import os
+
 import yaml
-from core.adapter import Adapter
-from adapter.shuyoushe import ShuYouSheAdapter
+
+from .base_adapter import Adapter
+from .adapter import *
+from .model import *
 
 
 class Core:
-    book_list = []
+    base_path = 'books'
     @staticmethod
-    def make_dirs():
-        os.makedirs('books', exist_ok=True)
-    @staticmethod
-    def get_adapter(site_name):
-        return {
-            'shuyoushe': ShuYouSheAdapter
-        }.get(site_name, Adapter)
-    def load_books(self, file_path='list.yml'):
-        if not os.path.exists(file_path):
-            raise FileNotFoundError(f"File {file_path} not found")
-        with open(file_path, 'r', encoding='utf-8') as f:
-            self.book_list = yaml.load(f, Loader=yaml.FullLoader)
-        return self
-    def get_books(self):
-        for book in self.book_list:
-            if book.get('skip', False):
-                continue
-            book_url = book.get('url', '')
-            site = book.get('site', '')
-            adapter = self.get_adapter(site)(book_url)
-            book_info = adapter.get_book_info()
-            if book_info:
-                book_name = book_info.get('book_name', '')
-                print(f'Downloading {book_name}')
-                book_author = book_info.get('book_author', '')
-                book_desc = book_info.get('book_desc', '')
-                total_chapters = book_info.get('total_chapters', 0)
-                _count_length = len(str(total_chapters))
-                book_dir = os.path.join('books', book_name)
-                metadata_dir = os.path.join(book_dir,'metadata')
-                chapters_dir = os.path.join(book_dir, 'chapters')
-                os.makedirs(book_dir, exist_ok=True)
-                os.makedirs(metadata_dir, exist_ok=True)
-                os.makedirs(chapters_dir, exist_ok=True)
-                open(os.path.join(metadata_dir, 'book_name.txt'), 'w', encoding='utf-8').write(book_name)
-                open(os.path.join(metadata_dir, 'book_author.txt'), 'w', encoding='utf-8').write(book_author)
-                open(os.path.join(metadata_dir, 'book_desc.txt'), 'w', encoding='utf-8').write(book_desc)
-                open(os.path.join(metadata_dir, 'total_chapters.txt'), 'w', encoding='utf-8').write(str(total_chapters))
-                open(os.path.join(metadata_dir, 'site.txt'), 'w', encoding='utf-8').write(site)
-                open(os.path.join(metadata_dir, 'book_url.txt'), 'w', encoding='utf-8').write(book_url)
-                for num in range(1, total_chapters+1):
-                    print(f'Getting chapter {num} content')
-                    chapter = adapter.get_chapter_content(num)
-                    chapter_title = chapter.get('chapter_title', '')
-                    print(f'Chapter {num} {chapter_title}')
-                    chapter_content = chapter.get('chapter_content', '')
-                    page_index = str(num).zfill(_count_length)
-                    chapter_file = os.path.join(chapters_dir, f'{page_index}_{chapter_title}.txt')
-                    open(chapter_file, 'w', encoding='utf-8').write(chapter_content)
-                    print(f'Saved chapter {page_index} {chapter_title}')
-            else:
-                raise ValueError(f"Failed to get book info from {book_url}")
+    def load_book_list(list_file_path: str='list.yml'):
+        if os.path.exists(list_file_path):
+            book_list = yaml.load(open(list_file_path, 'r', encoding='utf-8'), Loader=yaml.FullLoader)
+            for book in book_list:
+                yield BookInfo.from_dict(book)
+        else:
+            raise FileNotFoundError(f"File {list_file_path} not found.")
 
+    @staticmethod
+    def get_adapter(book: BookInfo):
+        return {
+            'shuyoushe': ShuYouSheAdapter,
+            'bqg475': Bqg475Adapter
+        }.get(book.site, Adapter)(book)
+
+    @staticmethod
+    def mkdir(path: str):
+        print(f"mkdir {path}")
+        os.makedirs(path, exist_ok=True)
+
+    def write_book_data(self, _book_data: BookData):
+        self.mkdir(self.base_path)
+        book_path = os.path.join(self.base_path, _book_data.book_name)
+        self.mkdir(book_path)
+        metadata_path = os.path.join(book_path,'metadata')
+        chapters_path = os.path.join(book_path, 'chapters')
+        self.mkdir(metadata_path)
+        self.mkdir(chapters_path)
+        with open(os.path.join(metadata_path, 'description.txt'), 'w', encoding='utf-8') as f:
+            f.write(_book_data.description)
+        with open(os.path.join(metadata_path, 'author.txt'), 'w', encoding='utf-8') as f:
+            f.write(_book_data.author)
+        with open(os.path.join(metadata_path, 'book_url.txt'), 'w', encoding='utf-8') as f:
+            f.write(_book_data.book_url)
+        with open(os.path.join(metadata_path, 'book_name.txt'), 'w', encoding='utf-8') as f:
+            f.write(_book_data.book_name)
+
+    def write_chapter_data(self, chapter_data: ChapterModel):
+        chapter_data_path = os.path.join(self.base_path, chapter_data.book_name, 'chapters', f"{chapter_data.order}_{chapter_data.title}.txt")
+        with open(chapter_data_path, 'w', encoding='utf-8') as f:
+            f.write(chapter_data.content)
+
+    def run(self):
+        for book in self.load_book_list():
+            if not book.skip:
+                adapter = self.get_adapter(book)
+                print(f"Downloading {book.book_id} adapter {adapter.adapter_name}")
+                _book_data = adapter.get_book_data()
+                print(f"Book data: {_book_data}")
+                self.write_book_data(_book_data)
+                for page in adapter.get_chapter_page():
+                    print(f"Downloading page {page}")
+                    for chapter in adapter.get_chapter_list(page, _book_data):
+                        print(f"Downloading chapter {chapter}")
+                        chapter_data = adapter.get_chapter_content(chapter)
+                        self.write_chapter_data(chapter_data)
+                        print(f"Downloaded chapter {chapter.title}")
+                exit()
