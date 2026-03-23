@@ -1,6 +1,4 @@
 from ..base_adapter import *
-from ..model import *
-
 
 class ShuYouSheAdapter(Adapter):
     base_url = "https://www.shuyous.com"

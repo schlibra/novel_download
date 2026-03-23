@@ -1,5 +1,8 @@
-- site: shuyoushe
+- site: ShuYouShe
   url: https://www.shuyous.com/book/2507137.html
   skip: true
-- site: bqg475
+- site: Bqg475
   url: https://www.bqg475.cc/#/book/2530/
+  skip: true
+- site: QiShuXia
+  url: https://www.qishuxia.com/book/1/

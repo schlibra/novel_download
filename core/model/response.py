@@ -23,5 +23,8 @@ class Response:
         if data := self.selector.xpath(f"//meta[@property='{key}']/@content").get():
             return data
         return key
+    @property
+    def cookies(self):
+        return self.res.cookies
     def __str__(self):
         return self.res.text

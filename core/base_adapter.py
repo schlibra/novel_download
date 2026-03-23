@@ -16,22 +16,27 @@ class Adapter(ABC):
 
     def __init__(self, book: BookInfo):
         self.book = book
-        if not book.book_id:
-            book.book_id = self.parse_book_id(book.url)
         ua = UserAgent().random
         self.session = BaseUrlSession(base_url=self.base_url)
         self.session.headers.update({"User-Agent": ua})
+        if not book.book_id:
+            book.book_id = self.parse_book_id(book.url)
 
-    def request(self, method, url, data=None, json=None, parse=True) -> Response:
+    def request(self, method, url, data=None, json=None, headers=None, parse=True, skip_error=False) -> Response:
+        if not headers:
+            headers = {}
         try:
-            res = self.session.request(method, url, data=data, json=json)
+            res = self.session.request(method, url, data=data, json=json, headers=headers)
         except requests.exceptions.RequestException as _e:
             print('Request error, retrying...')
             return self.request(method, url, data=data, json=json, parse=parse)
         if res.ok:
             return Response(res, parse=parse)
         else:
-            raise Exception(f"Failed to request {url}, status code: {res.status_code}")
+            if not skip_error:
+                raise Exception(f"Failed to request {url}, status code: {res.status_code}")
+            else:
+                return Response(res, parse=parse)
 
     @staticmethod
     def parse_html(html: str) -> Selector:

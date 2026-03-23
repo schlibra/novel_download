@@ -1,5 +1,4 @@
 from ..base_adapter import *
-from ..model import *
 
 
 class Bqg475Adapter(Adapter):

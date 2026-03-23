@@ -1,9 +1,9 @@
 import os
 
 import yaml
+import importlib
 
-from .base_adapter import Adapter
-from .adapter import *
+from .exception import *
 from .model import *
 
 
@@ -20,15 +20,34 @@ class Core:
 
     @staticmethod
     def get_adapter(book: BookInfo):
-        return {
-            'shuyoushe': ShuYouSheAdapter,
-            'bqg475': Bqg475Adapter
-        }.get(book.site, Adapter)(book)
+        adapter_path = f"core/adapter/{book.site}.py"
+        if os.path.exists(adapter_path):
+            adapter_module = importlib.import_module(f"core.adapter.{book.site}")
+            adapter_cls = getattr(adapter_module, f"{book.site}Adapter")
+            return adapter_cls(book)
+        else:
+            raise AdapterNotFoundException(f"Adapter for {book.site} not found.")
 
     @staticmethod
     def mkdir(path: str):
         print(f"mkdir {path}")
         os.makedirs(path, exist_ok=True)
+
+    @staticmethod
+    def process_filename(filename: str):
+        replace_table = {
+            '\\': '_',
+            '/': '_',
+            ':': '：',
+            '*': '＊',
+            '?': '？',
+            '<': '＜',
+            '>': '＞',
+            '|': '｜',
+        }
+        for k, v in replace_table.items():
+            filename = filename.replace(k, v)
+        return filename
 
     def write_book_data(self, _book_data: BookData):
         self.mkdir(self.base_path)
@@ -38,17 +57,12 @@ class Core:
         chapters_path = os.path.join(book_path, 'chapters')
         self.mkdir(metadata_path)
         self.mkdir(chapters_path)
-        with open(os.path.join(metadata_path, 'description.txt'), 'w', encoding='utf-8') as f:
-            f.write(_book_data.description)
-        with open(os.path.join(metadata_path, 'author.txt'), 'w', encoding='utf-8') as f:
-            f.write(_book_data.author)
-        with open(os.path.join(metadata_path, 'book_url.txt'), 'w', encoding='utf-8') as f:
-            f.write(_book_data.book_url)
-        with open(os.path.join(metadata_path, 'book_name.txt'), 'w', encoding='utf-8') as f:
-            f.write(_book_data.book_name)
+        for _item in ["description", "author", "book_url", "book_name"]:
+            with open(os.path.join(metadata_path, f'{_item}.txt'), 'w', encoding='utf-8') as f:
+                f.write(getattr(_book_data, _item))
 
     def write_chapter_data(self, chapter_data: ChapterModel):
-        chapter_data_path = os.path.join(self.base_path, chapter_data.book_name, 'chapters', f"{chapter_data.order}_{chapter_data.title}.txt")
+        chapter_data_path = os.path.join(self.base_path, chapter_data.book_name, 'chapters', f"{chapter_data.order}_{self.process_filename(chapter_data.title)}.txt")
         with open(chapter_data_path, 'w', encoding='utf-8') as f:
             f.write(chapter_data.content)
 
@@ -67,4 +81,3 @@ class Core:
                         chapter_data = adapter.get_chapter_content(chapter)
                         self.write_chapter_data(chapter_data)
                         print(f"Downloaded chapter {chapter.title}")
-                exit()
