@@ -42,3 +42,6 @@ class QiShuXiaAdapter(Adapter):
         res = self.request("get", chapter.url)
         chapter.content = "".join(res.css("#content ::text").getall())
         return chapter
+
+    def search_book(self, keyword: str):
+        pass

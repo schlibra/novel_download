@@ -37,4 +37,5 @@ class ShuYouSheAdapter(Adapter):
         chapter.content = content
         return chapter
 
-
+    def search_book(self, keyword: str):
+        pass

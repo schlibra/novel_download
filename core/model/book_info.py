@@ -3,11 +3,15 @@ class BookInfo:
     __url: str
     __book_id: str
     __skip: bool
-    def __init__(self, _site, _url, _book_id, _skip=False):
+    __book_name: str
+    __author: str
+    def __init__(self, _site="", _url="", _book_id="", _skip=False, _book_name="", _author=""):
         self.__site = _site
         self.__url = _url
         self.__book_id = _book_id
         self.__skip = _skip
+        self.__book_name = _book_name
+        self.__author = _author
 
     @property
     def site(self):
@@ -41,6 +45,22 @@ class BookInfo:
     def skip(self, _skip):
         self.__skip = _skip
 
+    @property
+    def book_name(self):
+        return self.__book_name
+
+    @book_name.setter
+    def book_name(self, _book_name):
+        self.__book_name = _book_name
+
+    @property
+    def author(self):
+        return self.__author
+
+    @author.setter
+    def author(self, _author):
+        self.__author = _author
+
     @staticmethod
     def from_dict(_data):
         return BookInfo(
@@ -51,4 +71,10 @@ class BookInfo:
         )
 
     def __str__(self):
-        return f"BookInfo(site={self.__site}, url={self.__url}, book_id={self.__book_id}, skip={self.__skip})"
+        site = self.site
+        url = self.url
+        book_id = self.book_id
+        skip = self.skip
+        book_name = self.book_name
+        author = self.author
+        return f"BookInfo({site=}, {url=}, {book_id=}, {skip=}, {book_name=}, {author=})"

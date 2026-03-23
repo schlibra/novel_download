@@ -41,3 +41,16 @@ class Bqg475Adapter(Adapter):
         chapter.content = res.get('txt', '')
         return chapter
 
+    def search_book(self, keyword: str):
+        res = self.request("get", f"https://apibi.cc/api/search?q={keyword}").json()
+        book_list = FList()
+        for book in res.get('data', []):
+            book_list += BookInfo(
+                self.adapter_name,
+                f"{self.base_url}/#/book/{book.get('id')}",
+                book.get('id'),
+                False,
+                book.get('title'),
+                book.get('author')
+            )
+        return book_list

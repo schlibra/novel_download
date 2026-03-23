@@ -71,3 +71,7 @@ class Adapter(ABC):
     @abstractmethod
     def get_chapter_content(self, chapter: ChapterModel) -> ChapterModel:
         pass
+
+    @abstractmethod
+    def search_book(self, keyword: str):
+        pass
