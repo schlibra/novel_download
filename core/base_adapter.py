@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from typing import Union
+import math
 
 import requests.exceptions
 from parsel import Selector
@@ -22,11 +23,11 @@ class Adapter(ABC):
         if not book.book_id:
             book.book_id = self.parse_book_id(book.url)
 
-    def request(self, method, url, data=None, json=None, headers=None, parse=True, skip_error=False) -> Response:
+    def request(self, method, url, data=None, json=None, params=None, headers=None, parse=True, skip_error=False) -> Response:
         if not headers:
             headers = {}
         try:
-            res = self.session.request(method, url, data=data, json=json, headers=headers)
+            res = self.session.request(method, url, data=data, json=json, params=params, headers=headers)
         except requests.exceptions.RequestException as _e:
             print('Request error, retrying...')
             return self.request(method, url, data=data, json=json, parse=parse)

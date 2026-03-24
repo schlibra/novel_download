@@ -41,5 +41,15 @@ class BookData:
     def book_name(self, _book_name):
         self.__book_name = _book_name
 
+    @staticmethod
+    def __short(text: str):
+        if len(text) > 20:
+            text = text[:20] + "..."
+        return text
+
     def __str__(self):
-        return f"BookData(description={self.__description}, author={self.__author}, book_url={self.__book_url}, book_name={self.__book_name})"
+        description = self.__short(self.__description)
+        author = self.__short(self.__author)
+        book_url = self.__short(self.__book_url)
+        book_name = self.__short(self.__book_name)
+        return f"BookData({description=}, {author=}, {book_url=}, {book_name=})"

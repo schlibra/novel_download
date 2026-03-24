@@ -1,8 +1,3 @@
-- site: ShuYouShe
-  url: https://www.shuyous.com/book/2507137.html
-  skip: true
-- site: Bqg475
-  url: https://www.bqg475.cc/#/book/2530/
-  skip: true
-- site: QiShuXia
-  url: https://www.qishuxia.com/book/1/
+- site: ShuYouShe # 小说爬虫适配器名称
+  url: https://www.shuyous.com/book/2507137.html # 小说地址
+  skip: true # 是否跳过该小说
