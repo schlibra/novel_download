@@ -1,3 +1,2 @@
-- site: ShuYouShe # 小说爬虫适配器名称
-  url: https://www.shuyous.com/book/2507137.html # 小说地址
-  skip: true # 是否跳过该小说
+- url: https://www.shuyous.com/book/2507137.html # 小说地址
+  skip: false # 是否跳过该小说

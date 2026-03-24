@@ -20,13 +20,19 @@ class Core:
 
     @staticmethod
     def get_adapter(book: BookInfo):
-        adapter_path = f"core/adapter/{book.site}.py"
-        if os.path.exists(adapter_path):
-            adapter_module = importlib.import_module(f"core.adapter.{book.site}")
-            adapter_cls = getattr(adapter_module, f"{book.site}Adapter")
-            return adapter_cls(book)
-        else:
-            raise AdapterNotFoundException(f"Adapter for {book.site} not found.")
+        base_url = book.url[:book.url.index('/', 8)]
+        for adapter_name in os.listdir('core/adapter'):
+            if not adapter_name.startswith('__') and adapter_name.endswith('.py'):
+                adapter_name = adapter_name[:-3]
+                adapter_path = f"core/adapter/{adapter_name}.py"
+                print(adapter_path)
+                with open(adapter_path, 'r', encoding='utf-8') as f:
+                    adapter_code = f.read()
+                    if f"{base_url}" in adapter_code:
+                        adapter_module = importlib.import_module(f"core.adapter.{adapter_name}")
+                        adapter_cls = getattr(adapter_module, f"{adapter_name}Adapter")
+                        return adapter_cls(book)
+        raise AdapterNotFoundException(f"Adapter for {book.url} not found.")
 
     @staticmethod
     def mkdir(path: str):
