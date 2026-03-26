@@ -25,7 +25,6 @@ class Core:
             if not adapter_name.startswith('__') and adapter_name.endswith('.py'):
                 adapter_name = adapter_name[:-3]
                 adapter_path = f"core/adapter/{adapter_name}.py"
-                print(adapter_path)
                 with open(adapter_path, 'r', encoding='utf-8') as f:
                     adapter_code = f.read()
                     if f"{base_url}" in adapter_code:
@@ -36,8 +35,9 @@ class Core:
 
     @staticmethod
     def mkdir(path: str):
-        print(f"mkdir {path}")
-        os.makedirs(path, exist_ok=True)
+        if not os.path.exists(path):
+            print(f"mkdir {path}")
+            os.makedirs(path)
 
     @staticmethod
     def process_filename(filename: str):
