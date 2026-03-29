@@ -1,5 +1,5 @@
-from .Bqg475 import Bqg475Adapter
+from .Bqg import BqgAdapter
 
-class Bqg128Adapter(Bqg475Adapter):
+class Bqg128Adapter(BqgAdapter):
     base_url = 'https://www.bqg128.cc'
     adapter_name = 'bqg128'
