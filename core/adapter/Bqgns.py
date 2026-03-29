@@ -14,7 +14,7 @@ class BqgnsAdapter(Adapter):
         return url
 
     def get_book_data(self) -> BookData:
-        res = self.request('get', '/api/query/get_book_list', params={'bookId': self.book.book_id, 'sort': '0', 'page': '1'}).json()
+        res = self.request(get, '/api/query/get_book_list', params={'bookId': self.book.book_id, 'sort': '0', 'page': '1'}).json()
         data = res.get('data', {})
         return BookData(
             data.get('des', ''),
@@ -25,12 +25,12 @@ class BqgnsAdapter(Adapter):
 
 
     def get_chapter_page(self):
-        res = self.request('get', '/api/query/get_book_list', params={'bookId': self.book.book_id, 'sort': '0', 'page': '1'}).json()
+        res = self.request(get, '/api/query/get_book_list', params={'bookId': self.book.book_id, 'sort': '0', 'page': '1'}).json()
         total = res.get('data', {}).get('update_id', 0)
         return range(math.ceil(total / 100))
 
     def get_chapter_list(self, page_index, _book_data: BookData):
-        res = self.request('get', '/api/query/get_book_list', params={'bookId': self.book.book_id, 'sort': '0', 'page': '1'}).json()
+        res = self.request(get, '/api/query/get_book_list', params={'bookId': self.book.book_id, 'sort': '0', 'page': '1'}).json()
         for item in res.get('data', {}).get('list', []):
             yield ChapterModel(
                 item.get('tit', ''),
@@ -41,7 +41,7 @@ class BqgnsAdapter(Adapter):
             )
 
     def get_chapter_content(self, chapter: ChapterModel) -> ChapterModel:
-        res = self.request('get', '/api/query/get_book_text', params={'bookId': self.book.book_id, 'id': chapter.order}).json()
+        res = self.request(get, '/api/query/get_book_text', params={'bookId': self.book.book_id, 'id': chapter.order}).json()
         for text in res.get('data', {}).get('text', []):
             chapter.content += self.markdown(text.get('text', ''))
         return chapter

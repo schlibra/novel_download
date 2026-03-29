@@ -8,6 +8,8 @@ from requests_toolbelt.sessions import BaseUrlSession
 from fake_useragent import UserAgent
 from .model import *
 
+get = 'get'
+post = 'post'
 
 class Adapter(ABC):
     base_url: str

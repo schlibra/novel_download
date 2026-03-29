@@ -14,7 +14,7 @@ class XslcaAdapter(Adapter):
         return url
 
     def get_book_data(self) -> BookData:
-        res = self.request('get', self.book.url)
+        res = self.request(get, self.book.url)
         return BookData(
             res.metadata('og:description'),
             res.metadata('og:novel:author'),
@@ -25,7 +25,7 @@ class XslcaAdapter(Adapter):
     def get_chapter_page(self):
         yield None
     def get_chapter_list(self, page_index, _book_data: BookData):
-        res = self.request('get', _book_data.book_url)
+        res = self.request(get, _book_data.book_url)
         main_index = 0
         chapter_list = res.css('#list dl').get().split('\n')
         for index, item in enumerate(chapter_list):
@@ -46,7 +46,7 @@ class XslcaAdapter(Adapter):
                 )
 
     def get_chapter_content(self, chapter: ChapterModel) -> ChapterModel:
-        res = self.request('get', chapter.url)
+        res = self.request(get, chapter.url)
         chapter.content = "".join(res.css('#content::text').getall())
         return chapter
 

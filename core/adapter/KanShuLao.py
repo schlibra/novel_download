@@ -12,7 +12,7 @@ class KanShuLaoAdapter(Adapter):
         return url
 
     def get_book_data(self) -> BookData:
-        res = self.request('get', self.book.url)
+        res = self.request(get, self.book.url)
         return BookData(
             res.metadata('og:description'),
             res.metadata('og:novel:author'),
@@ -21,12 +21,12 @@ class KanShuLaoAdapter(Adapter):
         )
 
     def get_chapter_page(self):
-        res = self.request('get', self.book.url)
+        res = self.request(get, self.book.url)
         for index, _ in enumerate(res.css('select#indexselect>option').getall()):
             yield str(index+1)
 
     def get_chapter_list(self, page_index, _book_data: BookData):
-        res = self.request('get', f'{_book_data.book_url}{page_index}')
+        res = self.request(get, f'{_book_data.book_url}{page_index}')
         for index, item in enumerate(res.css('div.row-section>div.layout>div.section-box:nth-of-type(2)>ul>li').getall()):
             link = self.parse_html(item).css('a').attrib.get('href', '')
             title = self.parse_html(item).css('a::text').get()
@@ -43,7 +43,7 @@ class KanShuLaoAdapter(Adapter):
             if '搜索本文首发' in _content:
                 _content = _content[:_content.index('搜索本文首发')]
             return _content
-        res = self.request('get', chapter.url)
+        res = self.request(get, chapter.url)
         for line in res.css('#content ::text').getall():
             chapter.content += remove_ads(line)
         return chapter

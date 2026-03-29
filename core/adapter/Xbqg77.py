@@ -12,7 +12,7 @@ class Xbqg77Adapter(Adapter):
         return url
 
     def get_book_data(self) -> BookData:
-        res = self.request('get', self.book.url)
+        res = self.request(get, self.book.url)
         return BookData(
             res.css('div.des>div.text ::text').get(),
             res.css('div.zuthor ::text').get().replace('作者：', ''),
@@ -24,7 +24,7 @@ class Xbqg77Adapter(Adapter):
         yield None
 
     def get_chapter_list(self, page_index, _book_data: BookData):
-        res = self.request('get', self.book.url)
+        res = self.request(get, self.book.url)
         for index, item in enumerate(res.css('div.chapter>ol>li>a').getall()):
             a_ele = self.parse_html(item)
             title = a_ele.css('a ::text').get()
@@ -38,7 +38,7 @@ class Xbqg77Adapter(Adapter):
             )
 
     def get_chapter_content(self, chapter: ChapterModel) -> ChapterModel:
-        res = self.request('get', chapter.url)
+        res = self.request(get, chapter.url)
         chapter.content = "\n".join(res.css('#article ::text').getall())
         return chapter
 

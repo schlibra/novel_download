@@ -5,7 +5,7 @@ class QiShuXiaAdapter(Adapter):
     adapter_name = "QiShuXia"
 
     def parse_book_id(self, url: str) -> str:
-        self.request("get", url, skip_error=True)
+        self.request(get, url, skip_error=True)
         if url.startswith(f"{self.base_url}/book/"):
             url = url.replace(f"{self.base_url}/book/", "")
         if url.endswith("/"):
@@ -13,7 +13,7 @@ class QiShuXiaAdapter(Adapter):
         return url
 
     def get_book_data(self) -> BookData:
-        res = self.request("get", f"/book/{self.book.book_id}/")
+        res = self.request(get, f"/book/{self.book.book_id}/")
         return BookData(
             res.metadata("og:description"),
             res.metadata("og:novel:author"),
@@ -25,7 +25,7 @@ class QiShuXiaAdapter(Adapter):
         yield None
 
     def get_chapter_list(self, page_index, _book_data: BookData):
-        res = self.request("get", f"/book/{self.book.book_id}/")
+        res = self.request(get, f"/book/{self.book.book_id}/")
         for index, _li in enumerate(res.css("#section-list li a").getall()):
             _li_ele = self.parse_html(_li)
             _title = _li_ele.css("::text").get()
@@ -39,7 +39,7 @@ class QiShuXiaAdapter(Adapter):
             )
 
     def get_chapter_content(self, chapter: ChapterModel) -> ChapterModel:
-        res = self.request("get", chapter.url)
+        res = self.request(get, chapter.url)
         chapter.content = "".join(res.css("#content ::text").getall())
         return chapter
 
