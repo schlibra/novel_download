@@ -13,7 +13,7 @@ class Bqg475Adapter(Adapter):
         return url
 
     def get_book_data(self):
-        res = self.request('get', f"https://apibi.cc/api/book?id={self.book.book_id}").json()
+        res = self.request(get, f"https://apibi.cc/api/book?id={self.book.book_id}").json()
         return BookData(
             res.get('intro', ''),
             res.get('author', ''),
@@ -25,7 +25,7 @@ class Bqg475Adapter(Adapter):
         yield None
 
     def get_chapter_list(self, page_index, _book_data: BookData):
-        res = self.request('get', f'https://apibi.cc/api/booklist?id={self.book.book_id}').json()
+        res = self.request(get, f'https://apibi.cc/api/booklist?id={self.book.book_id}').json()
         for index, chapter in enumerate(res.get('list', [])):
             i = str(index + 1)
             yield ChapterModel(
@@ -37,12 +37,12 @@ class Bqg475Adapter(Adapter):
             )
 
     def get_chapter_content(self, chapter: ChapterModel):
-        res = self.request('get', f'https://apibi.cc/api/chapter?id={self.book.book_id}&chapterid={chapter.order}').json()
+        res = self.request(get, f'https://apibi.cc/api/chapter?id={self.book.book_id}&chapterid={chapter.order}').json()
         chapter.content = res.get('txt', '')
         return chapter
 
     def search_book(self, keyword: str):
-        res = self.request("get", f"https://apibi.cc/api/search?q={keyword}").json()
+        res = self.request(get, f"https://apibi.cc/api/search?q={keyword}").json()
         book_list = FList()
         for book in res.get('data', []):
             book_list += BookInfo(
